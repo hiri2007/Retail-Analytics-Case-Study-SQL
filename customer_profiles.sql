@@ -1,15 +1,14 @@
 SET GLOBAL local_infile = 1;
 SET autocommit = 0;     -- Step 1
-START TRANSACTION;      -- Step 2
--- your query here
-ROLLBACK;               -- if mistake
-COMMIT;                 -- if correct
 
 
+-- Creating the database 
 create database customer_profile_data;
 
+-- select the database for EDA task
 use customer_profile_data;
 
+-- create an table of customer_profile
 create table customer_profile(
 	CustomerID int primary key,
     Age         int,
@@ -17,6 +16,8 @@ create table customer_profile(
     Location    varchar(20),
     JoinDate    date
 );
+
+-- load the dataset in the customer_profile table
 
 LOAD DATA LOCAL INFILE 'C:/Users/hirilal/OneDrive/Desktop/Retail Analytics Case Study SQL/customer_profiles.csv'
 INTO TABLE customer_profile
@@ -27,9 +28,7 @@ LINES TERMINATED BY '\r\n'
 IGNORE 1 ROWS;
 
 
-
-
-
+-- create an table of sales_transaction
 create table sales_transaction(
 	TransactionID 		int primary key,
     CustomerID 			int not null,
@@ -39,6 +38,7 @@ create table sales_transaction(
     Price    			float
 );
 
+-- load the data set in the sales_transaction table 
 LOAD DATA LOCAL INFILE 'C:/Users/hirilal/OneDrive/Desktop/Retail Analytics Case Study SQL/sales_transaction.csv'
 INTO TABLE sales_transaction
 CHARACTER SET utf8mb4
@@ -48,7 +48,7 @@ LINES TERMINATED BY '\r\n'
 IGNORE 1 ROWS;
 
 
-
+-- create an table of product_inventory
 
 create table product_inventory(
 	ProductID 		int primary key,
@@ -58,6 +58,8 @@ create table product_inventory(
     Price			float
 );
 
+-- load the dataset in the product_inventory table
+
 LOAD DATA LOCAL INFILE 'C:/Users/hirilal/OneDrive/Desktop/Retail Analytics Case Study SQL/product_inventory.csv'
 INTO TABLE product_inventory
 CHARACTER SET utf8mb4
@@ -66,7 +68,12 @@ ENCLOSED BY '"'
 LINES TERMINATED BY '\r\n'
 IGNORE 1 ROWS;
 
+-- featch the description of all the table
+
 desc customer_profile;
+desc sales_transaction;
+desc product_inventory;
+
 
 -- data cleaning (removing null and duplicate value)
 
@@ -91,6 +98,9 @@ where TransactionDate is null
     
 -- Exploratory Data Analysis (EDA)
 
+-- Basic product performance overview (total sales per product, total revenue, total quantity sold)
+
+
 SELECT 
     s.ProductID,
     p.ProductName,
@@ -105,7 +115,7 @@ GROUP BY s.ProductID, p.ProductName
 ORDER BY Total_Revenue DESC;
 
 
--- customer purchase frequency analysis
+-- customer purchase frequency analysis (how many orders does each customer have, on average)
 
 SELECT 
 	S.CustomerID,
@@ -118,7 +128,7 @@ GROUP BY S.CustomerID , C.Gender
 ORDER BY purchase_frequency DESC;
 
 
--- product categories performance evaluation.
+-- product categories performance evaluation (which categories generate the most revenue/volume)
 
 SELECT 
 	S.ProductID,
@@ -131,7 +141,7 @@ ON S.ProductID = P.ProductID
 GROUP BY S.ProductID, P.Category
 ORDER BY Total_Purchase DESC;
 
--- frequency of purchasing only with the category pf item
+-- frequency of purchasing only with the category of item
 SELECT 
 	P.Category,
     SUM(S.QuantityPurchased) AS Total_Purchase
